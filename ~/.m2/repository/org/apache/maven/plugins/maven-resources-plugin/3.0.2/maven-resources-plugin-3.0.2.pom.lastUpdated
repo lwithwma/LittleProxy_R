@@ -1,0 +1,4 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Fri Dec 01 12:55:39 IST 2017
+https\://repo.maven.apache.org/maven2/.error=Could not transfer artifact org.apache.maven.plugins\:maven-resources-plugin\:pom\:3.0.2 from/to central (https\://repo.maven.apache.org/maven2)\: unexpected end of stream on null
+2f5b74cf7de4c1ae7206d79be246e729941b2c67@172.31.100.14\:3128>@default-central-https\://repo.maven.apache.org/maven2/.lastUpdated=1512113139446

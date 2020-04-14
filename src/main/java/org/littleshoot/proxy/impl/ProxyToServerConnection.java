@@ -157,8 +157,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
             GlobalTrafficShapingHandler globalTrafficShapingHandler)
             throws UnknownHostException {
         Queue<ChainedProxy> chainedProxies = new ConcurrentLinkedQueue<ChainedProxy>();
-        ChainedProxyManager chainedProxyManager = proxyServer
-                .getChainProxyManager();
+        ChainedProxyManager chainedProxyManager = null;//proxyServer.getChainProxyManager();
         if (chainedProxyManager != null) {
             chainedProxyManager.lookupChainedProxies(initialHttpRequest,
                     chainedProxies);
@@ -167,6 +166,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
                 return null;
             }
         }
+	System.out.println(serverHostAndPort);
         return new ProxyToServerConnection(proxyServer,
                 clientConnection,
                 serverHostAndPort,
@@ -218,7 +218,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
     @Override
     protected ConnectionState readHTTPInitial(HttpResponse httpResponse) {
         LOG.debug("Received raw response: {}", httpResponse);
-
+	System.out.println(httpResponse.getStatus().code());
         if (httpResponse.getDecoderResult().isFailure()) {
             LOG.debug("Could not parse response from server. Decoder result: {}", httpResponse.getDecoderResult().toString());
 

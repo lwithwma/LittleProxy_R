@@ -1,0 +1,932 @@
+diff --git "a/performance/site/wikipedia/germany_files/15px-Coat_of_arms_of_Baden-Wu\314\210rttemberg_(lesser).svg.png" "b/performance/site/wikipedia/germany_files/15px-Coat_of_arms_of_Baden-Wu\314\210rttemberg_(lesser).svg.png"
+deleted file mode 100644
+index 0bae7bc..0000000
+Binary files "a/performance/site/wikipedia/germany_files/15px-Coat_of_arms_of_Baden-Wu\314\210rttemberg_(lesser).svg.png" and /dev/null differ
+diff --git "a/performance/site/wikipedia/germany_files/23px-Flag_of_Baden-Wu\314\210rttemberg.svg.png" "b/performance/site/wikipedia/germany_files/23px-Flag_of_Baden-Wu\314\210rttemberg.svg.png"
+deleted file mode 100644
+index 33b67dd..0000000
+Binary files "a/performance/site/wikipedia/germany_files/23px-Flag_of_Baden-Wu\314\210rttemberg.svg.png" and /dev/null differ
+diff --git "a/performance/site/wikipedia/germany_files/23px-Flagge_Ko\314\210nigreich_Wu\314\210rttemberg.svg.png" "b/performance/site/wikipedia/germany_files/23px-Flagge_Ko\314\210nigreich_Wu\314\210rttemberg.svg.png"
+deleted file mode 100644
+index 24ae824..0000000
+Binary files "a/performance/site/wikipedia/germany_files/23px-Flagge_Ko\314\210nigreich_Wu\314\210rttemberg.svg.png" and /dev/null differ
+diff --git a/pom.xml b/pom.xml
+index 351b006..e4fa5c4 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -478,7 +478,7 @@
+                 </configuration>
+             </plugin>
+ 
+-            <plugin>
++         	<plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-compiler-plugin</artifactId>
+                 <version>3.6.0</version>
+diff --git a/run.bash b/run.bash
+index a69d457..88225ee 100755
+--- a/run.bash
++++ b/run.bash
+@@ -4,12 +4,16 @@ function die() {
+   exit 1
+ }
+ 
+-mvn package -Dmaven.test.skip=true || die "Could not package"
++
++mvn package -Dmaven.test.skip=true  || die "Could not package"
+ 
+ fullPath=`dirname $0`
+ jar=`find $fullPath/target/littleproxy*-littleproxy-shade.jar`
+-cp=`echo $jar | sed 's,./,'$fullPath'/,'`
++echo $jar
++#cp=`echo $jar | sed 's,./,'$fullPath'/,'`
++cp=$jar
++echo $cp
+ javaArgs="-server -XX:+HeapDumpOnOutOfMemoryError -Xmx800m -jar "$cp" $*"
+ 
+ echo "Running using Java on path at `which java` with args $javaArgs"
+-java $javaArgs || die "Java process exited abnormally"
++java $javaArgs 172.31.132.86:9012 4785 /home/assassin/repo1 /home/assassin/mpds || die "Java process exited abnormally"
+diff --git a/src/main/java/org/littleshoot/proxy/HttpFilters.java b/src/main/java/org/littleshoot/proxy/HttpFilters.java
+index b102d1d..bda7225 100644
+--- a/src/main/java/org/littleshoot/proxy/HttpFilters.java
++++ b/src/main/java/org/littleshoot/proxy/HttpFilters.java
+@@ -3,6 +3,7 @@ package org.littleshoot.proxy;
+ import io.netty.channel.ChannelHandlerContext;
+ import io.netty.handler.codec.http.*;
+ import org.littleshoot.proxy.impl.ProxyUtils;
++import io.netty.handler.codec.http.HttpRequest;
+ 
+ import java.net.InetSocketAddress;
+ 
+@@ -207,5 +208,9 @@ public interface HttpFilters {
+      * @param serverCtx the {@link io.netty.channel.ChannelHandlerContext} used to connect to the server
+      */
+     void proxyToServerConnectionSucceeded(ChannelHandlerContext serverCtx);
++    
++    String getRelatedHostAndPort(String serverHostAndPort);
++
++    HttpRequest sendingFinalRequest(HttpRequest httpRequest);
+ 
+ }
+diff --git a/src/main/java/org/littleshoot/proxy/HttpFiltersAdapter.java b/src/main/java/org/littleshoot/proxy/HttpFiltersAdapter.java
+index 2871364..d422159 100644
+--- a/src/main/java/org/littleshoot/proxy/HttpFiltersAdapter.java
++++ b/src/main/java/org/littleshoot/proxy/HttpFiltersAdapter.java
+@@ -4,103 +4,506 @@ import io.netty.channel.ChannelHandlerContext;
+ import io.netty.handler.codec.http.HttpObject;
+ import io.netty.handler.codec.http.HttpRequest;
+ import io.netty.handler.codec.http.HttpResponse;
+-
++import io.netty.handler.codec.http.FullHttpResponse;
++import io.netty.buffer.ByteBuf;
++import java.net.*;
++import java.io.*;
++import java.util.*;
++import java.nio.ByteBuffer;
++import java.nio.channels.FileChannel;
++import java.math.BigInteger;
+ import java.net.InetSocketAddress;
++import org.dom4j.Document;
++import org.dom4j.DocumentException;
++import org.dom4j.Element;
++import org.dom4j.Node;
++import org.dom4j.io.SAXReader;
++
++import org.dom4j.DocumentHelper;
++
++import org.dom4j.io.OutputFormat;
++import org.dom4j.io.XMLWriter;
++import org.dom4j.XPath;
++import java.nio.charset.Charset;
+ 
+ /**
+  * Convenience base class for implementations of {@link HttpFilters}.
+  */
+ public class HttpFiltersAdapter implements HttpFilters {
+-    /**
+-     * A default, stateless, no-op {@link HttpFilters} instance.
+-     */
+-    public static final HttpFiltersAdapter NOOP_FILTER = new HttpFiltersAdapter(null);
+-
+-    protected final HttpRequest originalRequest;
+-    protected final ChannelHandlerContext ctx;
+-
+-    public HttpFiltersAdapter(HttpRequest originalRequest,
+-            ChannelHandlerContext ctx) {
+-        this.originalRequest = originalRequest;
+-        this.ctx = ctx;
+-    }
+-
+-    public HttpFiltersAdapter(HttpRequest originalRequest) {
+-        this(originalRequest, null);
+-    }
+-
+-    @Override
+-    public HttpResponse clientToProxyRequest(HttpObject httpObject) {
+-        return null;
+-    }
+-
+-    @Override
+-    public HttpResponse proxyToServerRequest(HttpObject httpObject) {
+-        return null;
+-    }
+-
+-    @Override
+-    public void proxyToServerRequestSending() {
+-    }
+-
+-    @Override
+-    public void proxyToServerRequestSent() {
+-    }
+-
+-    @Override
+-    public HttpObject serverToProxyResponse(HttpObject httpObject) {
+-        return httpObject;
+-    }
+-
+-    @Override
+-    public void serverToProxyResponseTimedOut() {
+-    }
+-
+-    @Override
+-    public void serverToProxyResponseReceiving() {
+-    }
+-
+-    @Override
+-    public void serverToProxyResponseReceived() {
+-    }
+-
+-    @Override
+-    public HttpObject proxyToClientResponse(HttpObject httpObject) {
+-        return httpObject;
+-    }
+-
+-    @Override
+-    public void proxyToServerConnectionQueued() {
+-    }
+-
+-    @Override
+-    public InetSocketAddress proxyToServerResolutionStarted(
+-            String resolvingServerHostAndPort) {
+-        return null;
+-    }
+-
+-    @Override
+-    public void proxyToServerResolutionFailed(String hostAndPort) {
+-    }
+-
+-    @Override
+-    public void proxyToServerResolutionSucceeded(String serverHostAndPort,
+-            InetSocketAddress resolvedRemoteAddress) {
+-    }
+-
+-    @Override
+-    public void proxyToServerConnectionStarted() {
+-    }
+-
+-    @Override
+-    public void proxyToServerConnectionSSLHandshakeStarted() {
+-    }
+-
+-    @Override
+-    public void proxyToServerConnectionFailed() {
+-    }
+-
+-    @Override
+-    public void proxyToServerConnectionSucceeded(ChannelHandlerContext serverCtx) {
+-    }
++	/**
++	 * A default, stateless, no-op {@link HttpFilters} instance.
++	 */
++	public static final HttpFiltersAdapter NOOP_FILTER = new HttpFiltersAdapter(null);
++
++	protected final HttpRequest originalRequest;
++	protected final ChannelHandlerContext ctx;
++	private int i;
++	private String mpd;
++	// private String[] array1;
++	// private String[] newArray;
++	// private String referer;
++	// private String requestUri;
++	// private String mpd;
++
++	public HttpFiltersAdapter(HttpRequest originalRequest, ChannelHandlerContext ctx) {
++		this.originalRequest = originalRequest;
++		this.ctx = ctx;
++	}
++
++	public HttpFiltersAdapter(HttpRequest originalRequest) {
++		this(originalRequest, null);
++	}
++
++	@Override
++	public HttpResponse clientToProxyRequest(HttpObject httpObject) {
++		String requestUri = originalRequest.getUri();
++		System.out.println("Request Uri" + requestUri);
++		String[] array1 = requestUri.split("/");
++		if (array1.length > 2) {
++			System.out.println("Array1");
++			for (String str : array1)
++				System.out.println(str);
++			String[] newArray = Arrays.copyOfRange(array1, 3, array1.length);
++		}
++
++		return null;
++	}
++
++	@Override
++	public HttpResponse proxyToServerRequest(HttpObject httpObject) {
++		return null;
++	}
++
++	@Override
++	public void proxyToServerRequestSending() {
++	}
++
++	@Override
++	public void proxyToServerRequestSent() {
++	}
++
++	@Override
++	public HttpObject serverToProxyResponse(HttpObject httpObject) {
++		String requestUri = originalRequest.getUri();
++		// System.out.println("Request Uri" + requestUri);
++
++		String[] array1 = requestUri.split("/");
++		if (array1.length > 2) {
++			String[] newArray = Arrays.copyOfRange(array1, 3, array1.length);
++			System.out.println("REFERER: " + originalRequest.headers().get("REFERER"));
++			String referer = originalRequest.headers().get("REFERER");
++			if (httpObject instanceof FullHttpResponse) {
++				FullHttpResponse response = (FullHttpResponse) httpObject;
++				// String requestUri = originalRequest.getUri();
++
++				if (requestUri.matches(".*[./]mpd.*$") || requestUri.matches(".*[./]mp4.*$")
++						|| requestUri.matches(".*[./]m4s.*$") || requestUri.matches(".*[./]woff2.*$")) {
++					ByteBuf buff = response.content();
++					System.out.println("RESPONSE recieved" + requestUri + i);
++
++					byte file[] = new byte[buff.capacity()];
++					for (int i = 0; i < buff.capacity(); i++) {
++						byte b = buff.getByte(i);
++						file[i] = b;
++					}
++					String fileSize = Integer.toString(buff.capacity());
++					System.out.println(fileSize + "Size of File");
++					String str;
++					if (!requestUri.matches(".*[./]mpd.*$")) {
++						str = getRepoPath();
++						System.out.println(str);
++
++						String data = MyUtils.reftoMpd.get(referer)+newArray[newArray.length - 1];
++						Key myKey = new Key(data);
++						MyUtils.chord.insert(myKey, MyUtils.systemIP);
++						Key sizeKey = new Key(data+"size");
++						MyUtils.chord.insert(sizeKey, fileSize);
++					//	createEntry(newArray[newArray.length - 1]);
++
++					} else {
++						str = MyUtils.mpdDir;
++						MyUtils.reftoMpd.put(referer, newArray[newArray.length - 1]);
++					}
++					str = str + "/" + newArray[newArray.length - 1];
++					try {
++						FileOutputStream fos = new FileOutputStream(str);
++						fos.write(file);
++						fos.close();
++					} catch (Exception e) {
++						System.out.println(e);
++					}
++
++				}
++
++				// System.out.println(buf);
++
++			}
++		}
++
++		return httpObject;
++
++	}
++
++	@Override
++	public void serverToProxyResponseTimedOut() {
++	}
++
++	@Override
++	public void serverToProxyResponseReceiving() {
++	}
++
++	@Override
++	public void serverToProxyResponseReceived() {
++	}
++
++	@Override
++	public HttpObject proxyToClientResponse(HttpObject httpObject) {
++		return httpObject;
++	}
++
++	@Override
++	public void proxyToServerConnectionQueued() {
++	}
++
++	@Override
++	public void proxyToServerResolutionFailed(String hostAndPort) {
++	}
++
++	@Override
++	public void proxyToServerResolutionSucceeded(String serverHostAndPort, InetSocketAddress resolvedRemoteAddress) {
++	}
++
++	@Override
++	public void proxyToServerConnectionStarted() {
++	}
++
++	@Override
++	public void proxyToServerConnectionSSLHandshakeStarted() {
++	}
++
++	@Override
++	public void proxyToServerConnectionFailed() {
++	}
++
++	@Override
++	public void proxyToServerConnectionSucceeded(ChannelHandlerContext serverCtx) {
++	}
++
++	@Override
++	public InetSocketAddress proxyToServerResolutionStarted(String resolvingServerHostAndPort) {
++		System.out.println("Sring host and port" + resolvingServerHostAndPort);
++
++		return null;
++	}
++
++	@Override
++	public String getRelatedHostAndPort(String serverHostAndPort){
++		String requestUri = originalRequest.getUri();
++		// System.out.println("Request Uri" + requestUri);
++		if (requestUri.matches(".*[./]m4s.*$")){
++		String[] array1 = requestUri.split("/");
++		if (array1.length > 2) {
++			String[] newArray = Arrays.copyOfRange(array1, 3, array1.length);
++			System.out.println("REFERER: " + originalRequest.headers().get("REFERER"));
++			String referer = originalRequest.headers().get("REFERER");
++
++			String mpdName = MyUtils.reftoMpd.get(referer);
++			String relatedHostAndPort = null;
++			if (newArray != null && newArray.length != 0) {
++				//relatedHostAndPort = getUrl(newArray[newArray.length - 1]);
++				HashSet<String> segNames = getAllRepSegNames(newArray[newArray.length - 1]);
++				HashMap<String,Set<String>> hostToRep = new HashMap<String,Set<String>>();
++				String data = mpdName + newArray[newArray.length - 1];
++				HashMap<String,String> segToSize = new HashMap<String,String>();
++				HashMap<Integer, String> sizeToSeg = new HashMap<Integer, String>();
++				for (String segName: segNames) {
++    					//String rep = entry.getKey();
++    					//String segName = entry.getValue();
++					Key myKey = new Key(mpdName + segName);
++					Set<Serializable> values = MyUtils.chord.retrieve(myKey);
++					for(Serializable s: values) {
++						String host = s.toString();
++						if(hostToRep.get(host) == null){
++							hostToRep.put(host, new HashSet<String>());
++						}
++						hostToRep.get(host).add(segName);
++					}
++					Key sizeKey = new Key(mpdName+segName+"size");
++					Set<Serializable> sizeSet = MyUtils.chord.retrieve(sizeKey);
++					if(!sizeSet.isEmpty()){
++						for(Serializable s: sizeSet){
++							String size = s.toString();
++							if(isNumber(size)){
++								segToSize.put(segName,size);
++								sizeToSeg.put(new Integer(size), segName);
++								System.out.println("Size of File is " + size); 
++								break;
++							}
++						}
++					}
++					else{
++						System.out.println("Size" + segName +"  empty");
++					}
++							
++				}
++				Set<String> set  = hostToRep.keySet();
++				HashSet<String> values = (set instanceof HashSet) ? (HashSet)set : new HashSet<Serializable>(set);
++				HashMap<String, String> hostToAvailBandwidth = retrieveBandwidths(values);
++				HashMap<String, Set<String>> positiveRepToHosts = new HashMap<String, Set<String>>(); 
++				HashMap<Integer, String> negativeMetricToHostRep = new HashMap<Integer, String>();
++				//HashMap
++				BigInteger requiredMetric = new BigInteger("20");
++				for (Map.Entry<String, String> entry : segToSize.entrySet()){
++    					System.out.println(entry.getKey() + "/" + entry.getValue());
++				}
++				for (Map.Entry<String, Set<String>> entry : hostToRep.entrySet())
++				{
++    					//System.out.println(entry.getKey() + "/" + entry.getValue());
++					String host = entry.getKey();
++					Set<String> availableReps = entry.getValue();
++					String availableBandwidth = hostToAvailBandwidth.get(host);
++					for(String rep : availableReps){
++						System.out.println(rep);
++						String requiredBandwidth = segToSize.get(rep);
++						//BigInteger metric = 0;
++						//Todo: Logic To calculate metric based on available and required bandwidth.
++						//
++						//BigInteger
++						BigInteger aB = new BigInteger(availableBandwidth);
++						BigInteger rB = new BigInteger(requiredBandwidth);
++						BigInteger x = aB.subtract(rB);
++						BigInteger metric = x.divide(rB);
++						
++						if(metric.compareTo(requiredMetric) >= 0){
++							if(positiveRepToHosts.get(rep) == null){
++								positiveRepToHosts.put(rep,new HashSet<String>());
++							}
++							positiveRepToHosts.get(rep).add(host);
++						}	
++						else{					
++							BigInteger diff = requiredMetric.subtract(metric);
++							int dificiency = diff.intValue();	
++							String hostRep = host + "/" + rep;
++							negativeMetricToHostRep.put(dificiency, hostRep);
++						} 
++					}
++				}
++				
++					
++				ArrayList<String> repList = new ArrayList(sizeToSeg.values());
++				if(repList != null){
++					for (int j = repList.size() - 1; j >= 0; j--) {
++				//get key
++						String rep = repList.get(j);
++						Set<String> hosts = positiveRepToHosts.get(rep);
++						if(hosts != null){
++							for(String host : hosts){
++								relatedHostAndPort = host;
++								array1[2] = relatedHostAndPort;
++								String str = array1[0];
++								array1[array1.length - 1] = rep;
++								for(int i = 1; i<array1.length; i++){
++									str = str+"/"+array1[i];
++								}
++								if(exists(str))
++									return relatedHostAndPort;
++								else relatedHostAndPort = null;
++							}
++						}
++					}
++				}
++				ArrayList<String> hostReps = new ArrayList(negativeMetricToHostRep.values());
++				if(hostReps != null){
++					for(String hostRep : hostReps){
++						String[] array2 = hostRep.split("/");
++						relatedHostAndPort = array2[0];
++						String rep = array2[1];
++						array1[2] = relatedHostAndPort;
++						String str = array1[0];
++						array1[array1.length - 1] = rep;
++						for(int i = 1; i<array1.length; i++){
++							str = str+"/"+array1[i];
++						}
++						if(exists(str)){
++							originalRequest.setUri(str);
++							return relatedHostAndPort;
++						}
++						else relatedHostAndPort = null;
++					}					
++				}
++			}
++			if (relatedHostAndPort == null)
++				relatedHostAndPort = serverHostAndPort;
++			System.out.println("Sercer" + serverHostAndPort);
++			return relatedHostAndPort;
++		}
++		System.out.println("RElated Hsst");
++		}
++		return serverHostAndPort;
++	}
++
++	@Override
++	public HttpRequest sendingFinalRequest(HttpRequest httpRequest){
++		httpRequest.setUri(originalRequest.getUri());
++		return httpRequest;
++	}
++
++	private HashSet<String> getAllRepSegNames(String requestedFile) {
++		String referer = originalRequest.headers().get("REFERER");
++		String mpd = MyUtils.reftoMpd.get(referer);
++		String str = MyUtils.mpdDir + "/" + MyUtils.reftoMpd.get(referer);
++		Vector<Vector<String>> segUrls = MyUtils.mpdtosegurls.get(mpd);
++		if(segUrls == null){
++			xmlprocess(mpd);
++			segUrls = MyUtils.mpdtosegurls.get(mpd);
++		}
++		int index = -1;
++		for(Vector<String> ve : segUrls){
++			if(ve.indexOf(requestedFile) != -1){
++				index = ve.indexOf(requestedFile);
++				break;
++			}
++		}
++		System.out.println("Size is " + segUrls.size() + " Index is " + index);
++		HashSet<String> segs = new HashSet<String>();
++		for(Vector<String> ve : segUrls){
++			System.out.println("Size of 1d vector is " + ve.size());
++			segs.add(ve.get(index));
++		}
++		return segs;
++	}
++
++	private void xmlprocess(String mpd){
++		if (mpd == null)
++			return ;
++		try {
++			File inputFile = new File(MyUtils.mpdDir + "/" + mpd);
++			SAXReader reader = new SAXReader();
++			Document document = reader.read(inputFile);
++			HashMap map = new HashMap();
++			Vector<Vector<String>> vec = new Vector<Vector<String>>();
++			map.put("edx", "urn:mpeg:dash:schema:mpd:2011");
++
++			XPath xpath = document.createXPath("/edx:MPD/edx:Period/edx:AdaptationSet/edx:Representation");
++			xpath.setNamespaceURIs(map);
++			System.out.println(xpath.getText());
++			List<Node> nodes = xpath.selectNodes(document);
++			System.out.println("Root element :" + document.getRootElement().getName());
++			Element classElement = document.getRootElement();
++			System.out.println("----------------------------");
++			int index = 0;
++			for (Node node : nodes) {
++				//int i = 0;
++				vec.add(new Vector<String>());
++				vec.get(index).add(node.valueOf("@bandwidth"));
++				System.out.println("\nCurrent Element :" + node.getName());
++				
++				XPath xpath1 = document.createXPath("edx:SegmentList/edx:SegmentURL");
++				xpath1.setNamespaceURIs(map);
++				List<Node> segNodes = xpath1.selectNodes(node, xpath1, false);
++				
++				for (Node node1 : segNodes) {
++					
++					vec.get(index).add(node1.valueOf("@media"));
++				}
++				index++;
++			}
++			MyUtils.mpdtosegurls.put(mpd,vec);
++
++		} catch (Exception e) {
++			e.printStackTrace();
++		}
++		
++	}
++
++	private String getRepoPath() {
++		String requestUri = originalRequest.getUri();
++		// System.out.println("Request Uri" + requestUri);
++		String[] array1 = requestUri.split("/");
++
++		String str = MyUtils.repoDir;
++		if (array1.length > 2) {
++			String[] newArray = Arrays.copyOfRange(array1, 3, array1.length);
++			for (int i = 0; i < newArray.length - 1; i++) {
++				str = str + "/" + newArray[i];
++			}
++		}
++		File f = new File(str);
++		boolean isCreated = f.mkdirs();
++		if (isCreated) {
++			System.out.println("Directory created");
++		}
++		return str;
++	}
++
++
++	private HashMap<String,String> retrieveBandwidths(HashSet<String> values){
++		try{
++			DatagramSocket serverSocket = new DatagramSocket();
++     			ByteArrayOutputStream byteStream = new ByteArrayOutputStream(5000);
++      			ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(byteStream));
++      			os.flush();
++      			os.writeObject(values);
++      			os.flush();
++      			//retrieves byte array
++      			byte[] sendBuf = byteStream.toByteArray();
++			byte[] receiveData = new byte[1024];
++      			//int byteCount = packet.getLength();
++      			String ip="10.0.0.253";
++    	  		InetAddress IPAddress = InetAddress.getByName(ip);
++          		int port = 7777;
++		
++			DatagramPacket sendPacket = new DatagramPacket(sendBuf, sendBuf.length, IPAddress, port);
++
++			System.out.println("Sending Packet");
++          		serverSocket.send(sendPacket);
++			System.out.println("Packet Send");
++			DatagramPacket dp = new DatagramPacket(receiveData, 1024);
++			serverSocket.receive(dp);
++			byte[] dataBytes = dp.getData();
++			
++			HashMap<String, String> o = null;
++			ByteArrayInputStream byteStream1 = new ByteArrayInputStream(dataBytes);
++			ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(byteStream1));
++			Map<String, String> readObject = (Map)is.readObject();
++			o = (readObject instanceof HashMap) ? (HashMap)readObject : new HashMap<String,String>(readObject);
++			//if( readObject instanceof HashSet) o = (HashSet) readObject;
++			is.close();
++			System.out.println("Converted to HASHMAP");
++					
++    	   		os.close();       	
++           		serverSocket.close();
++			return o;
++           		// return sentence;
++            	}
++		catch(Exception e){
++			System.out.println(e);
++		}
++		
++		return null;
++         
++	}
++	public static boolean exists(String URLName){
++    		try {
++     			 HttpURLConnection.setFollowRedirects(false);
++     			 // note : you may also need
++     			 //        HttpURLConnection.setInstanceFollowRedirects(false)
++     			 HttpURLConnection con =   (HttpURLConnection) new URL(URLName).openConnection();
++     			 con.setRequestMethod("HEAD");
++      			return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
++    		}
++    		catch (Exception e) {
++       			e.printStackTrace();
++       			return false;
++    		}
++  	}
++	private boolean isNumber(String s){
++    		try{
++        		Integer.parseInt(s);
++    		}
++    		catch(NumberFormatException e){
++        		return false;
++    		}
++    		return true;
++	}
+ }
+diff --git a/src/main/java/org/littleshoot/proxy/HttpFiltersSourceAdapter.java b/src/main/java/org/littleshoot/proxy/HttpFiltersSourceAdapter.java
+index 1b2cecf..fbd50d7 100644
+--- a/src/main/java/org/littleshoot/proxy/HttpFiltersSourceAdapter.java
++++ b/src/main/java/org/littleshoot/proxy/HttpFiltersSourceAdapter.java
+@@ -25,7 +25,7 @@ public class HttpFiltersSourceAdapter implements HttpFiltersSource {
+ 
+     @Override
+     public int getMaximumResponseBufferSizeInBytes() {
+-        return 0;
++        return 10*1024*1024;
+     }
+ 
+ }
+diff --git a/src/main/java/org/littleshoot/proxy/Launcher.java b/src/main/java/org/littleshoot/proxy/Launcher.java
+index f9b654a..1d02df9 100755
+--- a/src/main/java/org/littleshoot/proxy/Launcher.java
++++ b/src/main/java/org/littleshoot/proxy/Launcher.java
+@@ -18,6 +18,29 @@ import org.slf4j.LoggerFactory;
+ import java.io.File;
+ import java.net.InetSocketAddress;
+ import java.util.Arrays;
++import de.uniba.wiai.lspi.chord.com.local.Registry;
++import de.uniba.wiai.lspi.chord.data.URL;
++//import de.uniba.wiai.lspi.chord.service.Chord;
++import de.uniba.wiai.lspi.chord.service.ServiceException;
++import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
++import java.util.List;
++import java.util.concurrent.TimeUnit;
++import java.io.File;
++import java.io.PrintStream;
++
++import org.dom4j.Document;
++import org.dom4j.DocumentException;
++import org.dom4j.Element;
++import org.dom4j.Node;
++import org.dom4j.io.SAXReader;
++
++import org.dom4j.DocumentHelper;
++
++import org.dom4j.io.OutputFormat;
++import org.dom4j.io.XMLWriter;
++import org.dom4j.XPath;
++
++import java.util.Scanner;
+ 
+ /**
+  * Launches a new HTTP proxy.
+@@ -42,9 +65,70 @@ public class Launcher {
+      * @param args
+      *            Any command line arguments.
+      */
+-    public static void main(final String... args) {
++    public static void main(final String[] args) {
++    	
++    	Scanner scanner = new Scanner( System.in );
++    	de.uniba.wiai.lspi.chord.service.PropertiesLoader.loadPropertyFile();
++    	String protocol = URL.KNOWN_PROTOCOLS.get(URL.SOCKET_PROTOCOL);
++		System.out.println(protocol);
++		URL localURL = null;
++		///System.out.println("If you want to create new chord network type yes else type the bootstrap");
++		//String input = scanner.nextLine();
++	try{
++		MyUtils.systemIP = MyUtils.getSystemIP();
++	}
++	catch(Exception e){
++		System.out.println(e);
++	}	
++	System.out.println("Enter bootStrap");
++	String bootstra = scanner.nextLine();
++	//String bootstra = args[0];	
++	System.out.println("Enter port to which you want to connect");
++	String localPort = scanner.nextLine();
++	//String localPort = args[1];	
++	URL bootStrapURL = null;
++	try {
++		localURL = new URL(protocol + "://"+ MyUtils.systemIP+ ":"+ localPort +"/");
++		bootStrapURL = new URL ( protocol + "://"+bootstra+"/" ) ;
++	} catch ( Exception e ) {
++		throw new RuntimeException ( e ) ;
++	}	
++	try {
++		MyUtils.chord.join(localURL,bootStrapURL);
++	} catch (Exception e) {
++		e.printStackTrace();
++	}
++	try{
++		java.lang.Runtime.getRuntime().exec("arp -s 10.0.0.253 99:99:99:99:99:99");
++	}
++	catch(Exception e){
++		System.out.println(e);
++	}	
++	System.out.println("Enter full path for directory in which you want are store repo like-/home/user/dir");
++	String mpddir=scanner.nextLine();
++	// String mpddir = args[2];	
++	File folder = new File(mpddir);
++	while (!folder.exists() || !folder.isDirectory()) {
++		System.out.println("invalid Dierctory, Enter full path again");
++		mpddir=scanner.nextLine();
++		folder = new File(mpddir);
++   	}
++	MyUtils.repoDir = mpddir;		
++	
++	System.out.println("Enter full path for directory in which you want are store temperory data of mpd like-/home/user/dir");
++	mpddir=scanner.nextLine();
++	// mpddir = args[3];	
++	folder = new File(mpddir);
++	while (!folder.exists() || !folder.isDirectory()) {
++		System.out.println("invalid Dierctory, Enter full path again");
++		mpddir=scanner.nextLine();
++		folder = new File(mpddir);
++   	}
++	MyUtils.mpdDir = mpddir;
++
+         pollLog4JConfigurationFileIfAvailable();
+-        LOG.info("Running LittleProxy with args: {}", Arrays.asList(args));
++        LOG.info("Running LittleProxy with xyz args: {}", Arrays.asList(args));
++	
+         final Options options = new Options();
+         options.addOption(null, OPTION_DNSSEC, true,
+                 "Request and verify DNSSEC signatures.");
+@@ -56,8 +140,9 @@ public class Launcher {
+         
+         final CommandLineParser parser = new PosixParser();
+         final CommandLine cmd;
++	String[] ab = null;
+         try {
+-            cmd = parser.parse(options, args);
++            cmd = parser.parse(options, ab);
+             if (cmd.getArgs().length > 0) {
+                 throw new UnrecognizedOptionException(
+                         "Extra arguments were provided in "
+diff --git a/src/main/java/org/littleshoot/proxy/impl/ClientToProxyConnection.java b/src/main/java/org/littleshoot/proxy/impl/ClientToProxyConnection.java
+index 964858f..700f63d 100644
+--- a/src/main/java/org/littleshoot/proxy/impl/ClientToProxyConnection.java
++++ b/src/main/java/org/littleshoot/proxy/impl/ClientToProxyConnection.java
+@@ -47,6 +47,7 @@ import java.util.concurrent.RejectedExecutionException;
+ import java.util.concurrent.atomic.AtomicBoolean;
+ import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.regex.Pattern;
++import java.net.*;
+ 
+ import static org.littleshoot.proxy.impl.ConnectionState.AWAITING_CHUNK;
+ import static org.littleshoot.proxy.impl.ConnectionState.AWAITING_INITIAL;
+@@ -263,9 +264,15 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
+             }
+         }
+ 
++
++            
++        
+         // Identify our server and chained proxy
+         String serverHostAndPort = identifyHostAndPort(httpRequest);
+-
++//serverHostAndPort = "10.0.0.2";	
++//System.out.println("mypriny" + serverHostAndPort);
++	
++	
+         LOG.debug("Ensuring that hostAndPort are available in {}",
+                 httpRequest.getUri());
+         if (serverHostAndPort == null || StringUtils.isBlank(serverHostAndPort)) {
+@@ -277,7 +284,15 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
+                 return DISCONNECT_REQUESTED;
+             }
+         }
++	
++	//TODO: Host and port identified, Retrive host list from controller.
++	
++        serverHostAndPort = currentFilters.getRelatedHostAndPort(serverHostAndPort);
+ 
++
++	httpRequest = currentFilters.sendingFinalRequest(httpRequest);
++
++	
+         LOG.debug("Finding ProxyToServerConnection for: {}", serverHostAndPort);
+         currentServerConnection = isMitming() || isTunneling() ?
+                 this.currentServerConnection
+@@ -1452,4 +1467,5 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
+         }
+     }
+ 
++
+ }
+diff --git a/src/main/java/org/littleshoot/proxy/impl/DefaultHttpProxyServer.java b/src/main/java/org/littleshoot/proxy/impl/DefaultHttpProxyServer.java
+index 1891532..18141be 100644
+--- a/src/main/java/org/littleshoot/proxy/impl/DefaultHttpProxyServer.java
++++ b/src/main/java/org/littleshoot/proxy/impl/DefaultHttpProxyServer.java
+@@ -45,7 +45,7 @@ import java.util.Properties;
+ import java.util.concurrent.ConcurrentLinkedQueue;
+ import java.util.concurrent.TimeUnit;
+ import java.util.concurrent.atomic.AtomicBoolean;
+-
++import java.util.HashMap;
+ /**
+  * <p>
+  * Primary implementation of an {@link HttpProxyServer}.
+@@ -78,7 +78,7 @@ public class DefaultHttpProxyServer implements HttpProxyServer {
+     private static final int MAX_INITIAL_LINE_LENGTH_DEFAULT = 8192;
+     private static final int MAX_HEADER_SIZE_DEFAULT = 8192*2;
+     private static final int MAX_CHUNK_SIZE_DEFAULT = 8192*2;
+-
++    
+     /**
+      * The proxy alias to use in the Via header if no explicit proxy alias is specified and the hostname of the local
+      * machine cannot be resolved.
+@@ -155,6 +155,7 @@ public class DefaultHttpProxyServer implements HttpProxyServer {
+      * @return
+      */
+     public static HttpProxyServerBootstrap bootstrap() {
++    	
+         return new DefaultHttpProxyServerBootstrap();
+     }
+ 
+diff --git a/src/main/java/org/littleshoot/proxy/impl/ProxyToServerConnection.java b/src/main/java/org/littleshoot/proxy/impl/ProxyToServerConnection.java
+index b612f51..2c6956f 100644
+--- a/src/main/java/org/littleshoot/proxy/impl/ProxyToServerConnection.java
++++ b/src/main/java/org/littleshoot/proxy/impl/ProxyToServerConnection.java
+@@ -157,8 +157,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
+             GlobalTrafficShapingHandler globalTrafficShapingHandler)
+             throws UnknownHostException {
+         Queue<ChainedProxy> chainedProxies = new ConcurrentLinkedQueue<ChainedProxy>();
+-        ChainedProxyManager chainedProxyManager = proxyServer
+-                .getChainProxyManager();
++        ChainedProxyManager chainedProxyManager = null;//proxyServer.getChainProxyManager();
+         if (chainedProxyManager != null) {
+             chainedProxyManager.lookupChainedProxies(initialHttpRequest,
+                     chainedProxies);
+@@ -167,6 +166,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
+                 return null;
+             }
+         }
++	System.out.println(serverHostAndPort);
+         return new ProxyToServerConnection(proxyServer,
+                 clientConnection,
+                 serverHostAndPort,
+@@ -218,7 +218,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
+     @Override
+     protected ConnectionState readHTTPInitial(HttpResponse httpResponse) {
+         LOG.debug("Received raw response: {}", httpResponse);
+-
++	System.out.println(httpResponse.getStatus().code());
+         if (httpResponse.getDecoderResult().isFailure()) {
+             LOG.debug("Could not parse response from server. Decoder result: {}", httpResponse.getDecoderResult().toString());
+ 
+diff --git a/src/test/java/org/littleshoot/proxy/HttpFilterTest.java b/src/test/java/org/littleshoot/proxy/HttpFilterTest.java
+index 56e3a22..7045b01 100644
+--- a/src/test/java/org/littleshoot/proxy/HttpFilterTest.java
++++ b/src/test/java/org/littleshoot/proxy/HttpFilterTest.java
+@@ -986,5 +986,9 @@ public class HttpFilterTest {
+         public void proxyToServerConnectionSSLHandshakeStarted() {
+             proxyToServerConnectionSSLHandshakeStarted.set(true);
+         }
++	@Override
++	public String getRelatedHostAndPort(String str){
++		return null;
++	}
+     }
+ }

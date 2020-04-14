@@ -47,6 +47,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.net.*;
 
 import static org.littleshoot.proxy.impl.ConnectionState.AWAITING_CHUNK;
 import static org.littleshoot.proxy.impl.ConnectionState.AWAITING_INITIAL;
@@ -77,7 +78,7 @@ import static org.littleshoot.proxy.impl.ConnectionState.NEGOTIATING_CONNECT;
  * .
  * </p>
  */
-public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
+public class ClientToProxyConnection extends ProxyConnection<HttpRequest> { //extends means inherit
     private static final HttpResponseStatus CONNECTION_ESTABLISHED = new HttpResponseStatus(
             200, "Connection established");
     /**
@@ -238,7 +239,7 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
             currentFilters = HttpFiltersAdapter.NOOP_FILTER;
         }
 
-        // Send the request through the clientToProxyRequest filter, and respond with the short-circuit response if required
+        // Send the request through the clientToProxyRequestproxyToServerRequest filter, and respond with the short-circuit response if required
         HttpResponse clientToProxyFilterResponse = currentFilters.clientToProxyRequest(httpRequest);
 
         if (clientToProxyFilterResponse != null) {
@@ -263,9 +264,16 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
             }
         }
 
+
+            
+        
         // Identify our server and chained proxy
         String serverHostAndPort = identifyHostAndPort(httpRequest);
-
+//serverHostAndPort = "10.0.0.2";	
+         System.out.println("httpRequest before getRelatedHostAndPort:" + httpRequest+ " \n"); 
+        System.out.println("serverHostAndPort before getRelatedHostAndPort:" + serverHostAndPort+ " \n"); // serverHostAndPort:10.0.0.1:8080
+	
+	
         LOG.debug("Ensuring that hostAndPort are available in {}",
                 httpRequest.getUri());
         if (serverHostAndPort == null || StringUtils.isBlank(serverHostAndPort)) {
@@ -277,7 +285,20 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
                 return DISCONNECT_REQUESTED;
             }
         }
+	
+	//TODO: Host and port identified, Retrive host list from controller.
+	
+        serverHostAndPort = currentFilters.getRelatedHostAndPort(serverHostAndPort);
+        //String servet=currentFilters.getRelatedHostAndPort(serverHostAndPort);
+      System.out.println("serverHostAndPort after getRelatedHostAndPort:" + serverHostAndPort+ " \n"); 
 
+
+	httpRequest = currentFilters.sendingFinalRequest(httpRequest);
+
+	System.out.println("httpRequest after getRelatedHostAndPort:" + httpRequest+ " \n"); 
+    
+
+	
         LOG.debug("Finding ProxyToServerConnection for: {}", serverHostAndPort);
         currentServerConnection = isMitming() || isTunneling() ?
                 this.currentServerConnection
@@ -750,7 +771,7 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
                 LOG.info("An executor rejected a read or write operation on the ClientToProxyConnection (this is normal if the proxy is shutting down). Message: " + cause.getMessage());
                 LOG.debug("A RejectedExecutionException occurred on ClientToProxyConnection", cause);
             } else {
-                LOG.error("Caught an exception on ClientToProxyConnection", cause);
+                LOG.error("Caught an exception on ClientToProxyConnection",cause);
             }
         } finally {
             // always disconnect the client when an exception occurs on the channel
@@ -1451,5 +1472,6 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
             return new FlowContext(this);
         }
     }
+
 
 }

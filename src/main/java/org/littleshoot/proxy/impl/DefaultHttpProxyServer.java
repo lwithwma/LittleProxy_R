@@ -45,7 +45,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
+import java.util.HashMap;
 /**
  * <p>
  * Primary implementation of an {@link HttpProxyServer}.
@@ -78,7 +78,7 @@ public class DefaultHttpProxyServer implements HttpProxyServer {
     private static final int MAX_INITIAL_LINE_LENGTH_DEFAULT = 8192;
     private static final int MAX_HEADER_SIZE_DEFAULT = 8192*2;
     private static final int MAX_CHUNK_SIZE_DEFAULT = 8192*2;
-
+    
     /**
      * The proxy alias to use in the Via header if no explicit proxy alias is specified and the hostname of the local
      * machine cannot be resolved.
@@ -155,6 +155,7 @@ public class DefaultHttpProxyServer implements HttpProxyServer {
      * @return
      */
     public static HttpProxyServerBootstrap bootstrap() {
+    	
         return new DefaultHttpProxyServerBootstrap();
     }
 
@@ -600,7 +601,7 @@ public class DefaultHttpProxyServer implements HttpProxyServer {
         private ServerGroup serverGroup = null;
         private TransportProtocol transportProtocol = TransportProtocol.TCP;
         private InetSocketAddress requestedAddress;
-        private int port = 8080;
+        private int port = 8080; //8080 change to 8888 by lwith
         private boolean allowLocalOnly = true;
         private SslEngineSource sslEngineSource = null;
         private boolean authenticateSslClients = true;

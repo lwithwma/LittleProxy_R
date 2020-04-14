@@ -3,6 +3,7 @@ package org.littleshoot.proxy;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import org.littleshoot.proxy.impl.ProxyUtils;
+import io.netty.handler.codec.http.HttpRequest;
 
 import java.net.InetSocketAddress;
 
@@ -207,5 +208,9 @@ public interface HttpFilters {
      * @param serverCtx the {@link io.netty.channel.ChannelHandlerContext} used to connect to the server
      */
     void proxyToServerConnectionSucceeded(ChannelHandlerContext serverCtx);
+    
+    String getRelatedHostAndPort(String serverHostAndPort);
+
+    HttpRequest sendingFinalRequest(HttpRequest httpRequest);
 
 }

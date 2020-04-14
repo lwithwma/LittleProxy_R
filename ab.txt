@@ -1,0 +1,403 @@
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building LittleProxy 1.1.3-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:3.0.2:resources (default-resources) @ littleproxy ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/assassin/LittleProxy/src/main/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.6.0:compile (default-compile) @ littleproxy ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:3.0.2:testResources (default-testResources) @ littleproxy ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.6.0:testCompile (default-testCompile) @ littleproxy ---
+[INFO] Not compiling test sources
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.19.1:test (default-test) @ littleproxy ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.0.2:jar (default-jar) @ littleproxy ---
+[INFO] 
+[INFO] --- maven-shade-plugin:2.4.3:shade (default) @ littleproxy ---
+[INFO] Including com.google.guava:guava:jar:23.0 in the shaded jar.
+[INFO] Including com.google.code.findbugs:jsr305:jar:1.3.9 in the shaded jar.
+[INFO] Including com.google.errorprone:error_prone_annotations:jar:2.0.18 in the shaded jar.
+[INFO] Including com.google.j2objc:j2objc-annotations:jar:1.1 in the shaded jar.
+[INFO] Including org.codehaus.mojo:animal-sniffer-annotations:jar:1.14 in the shaded jar.
+[INFO] Including commons-cli:commons-cli:jar:1.3.1 in the shaded jar.
+[INFO] Including org.apache.commons:commons-lang3:jar:3.5 in the shaded jar.
+[INFO] Including log4j:log4j:jar:1.2.17 in the shaded jar.
+[INFO] Including io.netty:netty-all:jar:4.0.44.Final in the shaded jar.
+[INFO] Including com.barchart.udt:barchart-udt-bundle:jar:2.3.0 in the shaded jar.
+[INFO] Including org.littleshoot:dnssec4j:jar:0.1.6 in the shaded jar.
+[INFO] Including dnsjava:dnsjava:jar:2.1.8 in the shaded jar.
+[INFO] Including org.slf4j:slf4j-log4j12:jar:1.7.24 in the shaded jar.
+[INFO] Including org.slf4j:slf4j-api:jar:1.7.24 in the shaded jar.
+[INFO] Attaching shaded artifact.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 1.900s
+[INFO] Finished at: Fri Nov 17 12:24:35 IST 2017
+[INFO] Final Memory: 27M/343M
+[INFO] ------------------------------------------------------------------------
+Running using Java on path at /usr/bin/java with args -server -XX:+HeapDumpOnOutOfMemoryError -Xmx800m -jar ./target/littleproxy-1.1.3-SNAPSHOT-littleproxy-shade.jar 
+0      2017-11-17 12:24:35,866 INFO  [main] proxy.Launcher (Launcher.java:47).main() - Running LittleProxy with args: []
+About to start server on port: 8080
+About to start...
+56     2017-11-17 12:24:35,922 INFO  [main] impl.DefaultHttpProxyServer (DefaultHttpProxyServer.java:495).start() - Starting proxy at address: 0.0.0.0/0.0.0.0:8080
+70     2017-11-17 12:24:35,936 INFO  [main] impl.DefaultHttpProxyServer (DefaultHttpProxyServer.java:524).doStart() - Proxy listening with TCP transport
+104    2017-11-17 12:24:35,970 INFO  [main] impl.DefaultHttpProxyServer (DefaultHttpProxyServer.java:559).doStart() - Proxy started at address: /0:0:0:0:0:0:0:0:8080
+http://10.0.0.2/null
+10.0.0.2
+172.31.132.127
+3673   2017-11-17 12:24:39,539 INFO  [LittleProxy-0-ProxyToServerWorker-0] impl.ProxyToServerConnection (ProxyToServerConnection.java:776).connectionFailed() - (CONNECTING) [id: 0x6a79fdd4]: Connection to upstream server failed
+io.netty.channel.AbstractChannel$AnnotatedSocketException: Network is unreachable: /172.31.132.127:80
+	at sun.nio.ch.Net.connect0(Native Method)
+	at sun.nio.ch.Net.connect(Net.java:454)
+	at sun.nio.ch.Net.connect(Net.java:446)
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)
+	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:243)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:205)
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1226)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelDuplexHandler.connect(ChannelDuplexHandler.java:50)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:507)
+	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:970)
+	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:215)
+	at io.netty.bootstrap.Bootstrap$2.run(Bootstrap.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:399)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:446)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at java.lang.Thread.run(Thread.java:748)
+http://10.0.0.2/favicon.iconull
+newjava.net.BindException: Address already in use (Bind failed)
+10.0.0.2
+3704   2017-11-17 12:24:39,570 INFO  [LittleProxy-0-ProxyToServerWorker-1] impl.ProxyToServerConnection (ProxyToServerConnection.java:776).connectionFailed() - (CONNECTING) [id: 0x3623133f]: Connection to upstream server failed
+io.netty.channel.AbstractChannel$AnnotatedSocketException: Network is unreachable: /172.31.132.127:80
+	at sun.nio.ch.Net.connect0(Native Method)
+	at sun.nio.ch.Net.connect(Net.java:454)
+	at sun.nio.ch.Net.connect(Net.java:446)
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)
+	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:243)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:205)
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1226)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelDuplexHandler.connect(ChannelDuplexHandler.java:50)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:507)
+	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:970)
+	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:215)
+	at io.netty.bootstrap.Bootstrap$2.run(Bootstrap.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:399)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:446)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at java.lang.Thread.run(Thread.java:748)
+http://10.0.0.2/favicon.iconull
+newjava.net.BindException: Address already in use (Bind failed)
+10.0.0.2
+3740   2017-11-17 12:24:39,606 INFO  [LittleProxy-0-ProxyToServerWorker-2] impl.ProxyToServerConnection (ProxyToServerConnection.java:776).connectionFailed() - (CONNECTING) [id: 0x0db532b6]: Connection to upstream server failed
+io.netty.channel.AbstractChannel$AnnotatedSocketException: Network is unreachable: /172.31.132.127:80
+	at sun.nio.ch.Net.connect0(Native Method)
+	at sun.nio.ch.Net.connect(Net.java:454)
+	at sun.nio.ch.Net.connect(Net.java:446)
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)
+	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:243)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:205)
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1226)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelDuplexHandler.connect(ChannelDuplexHandler.java:50)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:507)
+	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:970)
+	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:215)
+	at io.netty.bootstrap.Bootstrap$2.run(Bootstrap.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:399)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:446)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at java.lang.Thread.run(Thread.java:748)
+http://detectportal.firefox.com/success.txtnull
+newjava.net.BindException: Address already in use (Bind failed)
+detectportal.firefox.com
+172.31.132.127
+25613  2017-11-17 12:25:01,479 INFO  [LittleProxy-0-ProxyToServerWorker-3] impl.ProxyToServerConnection (ProxyToServerConnection.java:776).connectionFailed() - (CONNECTING) [id: 0x5432f6fa]: Connection to upstream server failed
+io.netty.channel.AbstractChannel$AnnotatedSocketException: Network is unreachable: /172.31.132.127:80
+	at sun.nio.ch.Net.connect0(Native Method)
+	at sun.nio.ch.Net.connect(Net.java:454)
+	at sun.nio.ch.Net.connect(Net.java:446)
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)
+	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:243)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:205)
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1226)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelDuplexHandler.connect(ChannelDuplexHandler.java:50)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:507)
+	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:970)
+	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:215)
+	at io.netty.bootstrap.Bootstrap$2.run(Bootstrap.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:399)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:446)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at java.lang.Thread.run(Thread.java:748)
+http://detectportal.firefox.com/success.txtnull
+newjava.net.BindException: Address already in use (Bind failed)
+detectportal.firefox.com
+25616  2017-11-17 12:25:01,482 INFO  [LittleProxy-0-ProxyToServerWorker-4] impl.ProxyToServerConnection (ProxyToServerConnection.java:776).connectionFailed() - (CONNECTING) [id: 0x0af70c4f]: Connection to upstream server failed
+io.netty.channel.AbstractChannel$AnnotatedSocketException: Network is unreachable: /172.31.132.127:80
+	at sun.nio.ch.Net.connect0(Native Method)
+	at sun.nio.ch.Net.connect(Net.java:454)
+	at sun.nio.ch.Net.connect(Net.java:446)
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)
+	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:243)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:205)
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1226)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelDuplexHandler.connect(ChannelDuplexHandler.java:50)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:507)
+	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:970)
+	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:215)
+	at io.netty.bootstrap.Bootstrap$2.run(Bootstrap.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:399)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:446)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at java.lang.Thread.run(Thread.java:748)
+http://detectportal.firefox.com/success.txtnull
+newjava.net.BindException: Address already in use (Bind failed)
+detectportal.firefox.com
+25619  2017-11-17 12:25:01,485 INFO  [LittleProxy-0-ProxyToServerWorker-5] impl.ProxyToServerConnection (ProxyToServerConnection.java:776).connectionFailed() - (CONNECTING) [id: 0x8b807e03]: Connection to upstream server failed
+io.netty.channel.AbstractChannel$AnnotatedSocketException: Network is unreachable: /172.31.132.127:80
+	at sun.nio.ch.Net.connect0(Native Method)
+	at sun.nio.ch.Net.connect(Net.java:454)
+	at sun.nio.ch.Net.connect(Net.java:446)
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)
+	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:243)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:205)
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1226)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelDuplexHandler.connect(ChannelDuplexHandler.java:50)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:507)
+	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:970)
+	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:215)
+	at io.netty.bootstrap.Bootstrap$2.run(Bootstrap.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:399)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:446)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at java.lang.Thread.run(Thread.java:748)
+http://detectportal.firefox.com/success.txtnull
+newjava.net.BindException: Address already in use (Bind failed)
+detectportal.firefox.com
+25622  2017-11-17 12:25:01,488 INFO  [LittleProxy-0-ProxyToServerWorker-6] impl.ProxyToServerConnection (ProxyToServerConnection.java:776).connectionFailed() - (CONNECTING) [id: 0xccab951a]: Connection to upstream server failed
+io.netty.channel.AbstractChannel$AnnotatedSocketException: Network is unreachable: /172.31.132.127:80
+	at sun.nio.ch.Net.connect0(Native Method)
+	at sun.nio.ch.Net.connect(Net.java:454)
+	at sun.nio.ch.Net.connect(Net.java:446)
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)
+	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:243)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:205)
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1226)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelDuplexHandler.connect(ChannelDuplexHandler.java:50)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:507)
+	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:970)
+	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:215)
+	at io.netty.bootstrap.Bootstrap$2.run(Bootstrap.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:399)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:446)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at java.lang.Thread.run(Thread.java:748)
+http://detectportal.firefox.com/success.txtnull
+newjava.net.BindException: Address already in use (Bind failed)
+detectportal.firefox.com
+25625  2017-11-17 12:25:01,491 INFO  [LittleProxy-0-ProxyToServerWorker-7] impl.ProxyToServerConnection (ProxyToServerConnection.java:776).connectionFailed() - (CONNECTING) [id: 0xd1d86022]: Connection to upstream server failed
+io.netty.channel.AbstractChannel$AnnotatedSocketException: Network is unreachable: /172.31.132.127:80
+	at sun.nio.ch.Net.connect0(Native Method)
+	at sun.nio.ch.Net.connect(Net.java:454)
+	at sun.nio.ch.Net.connect(Net.java:446)
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)
+	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:243)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:205)
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1226)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelDuplexHandler.connect(ChannelDuplexHandler.java:50)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:507)
+	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:970)
+	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:215)
+	at io.netty.bootstrap.Bootstrap$2.run(Bootstrap.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:399)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:446)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at java.lang.Thread.run(Thread.java:748)
+http://detectportal.firefox.com/success.txtnull
+newjava.net.BindException: Address already in use (Bind failed)
+detectportal.firefox.com
+25628  2017-11-17 12:25:01,494 INFO  [LittleProxy-0-ProxyToServerWorker-0] impl.ProxyToServerConnection (ProxyToServerConnection.java:776).connectionFailed() - (CONNECTING) [id: 0xb67d76cc]: Connection to upstream server failed
+io.netty.channel.AbstractChannel$AnnotatedSocketException: Network is unreachable: /172.31.132.127:80
+	at sun.nio.ch.Net.connect0(Native Method)
+	at sun.nio.ch.Net.connect(Net.java:454)
+	at sun.nio.ch.Net.connect(Net.java:446)
+	at sun.nio.ch.SocketChannelImpl.connect(SocketChannelImpl.java:648)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:83)
+	at io.netty.util.internal.SocketUtils$3.run(SocketUtils.java:80)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at io.netty.util.internal.SocketUtils.connect(SocketUtils.java:80)
+	at io.netty.channel.socket.nio.NioSocketChannel.doConnect(NioSocketChannel.java:243)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.connect(AbstractNioChannel.java:205)
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.connect(DefaultChannelPipeline.java:1226)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelOutboundHandlerAdapter.connect(ChannelOutboundHandlerAdapter.java:47)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.ChannelDuplexHandler.connect(ChannelDuplexHandler.java:50)
+	at io.netty.channel.AbstractChannelHandlerContext.invokeConnect(AbstractChannelHandlerContext.java:540)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:525)
+	at io.netty.channel.AbstractChannelHandlerContext.connect(AbstractChannelHandlerContext.java:507)
+	at io.netty.channel.DefaultChannelPipeline.connect(DefaultChannelPipeline.java:970)
+	at io.netty.channel.AbstractChannel.connect(AbstractChannel.java:215)
+	at io.netty.bootstrap.Bootstrap$2.run(Bootstrap.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:399)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:446)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:131)
+	at java.lang.Thread.run(Thread.java:748)
+61573  2017-11-17 12:25:37,439 INFO  [LittleProxy-JVM-shutdown-hook] impl.DefaultHttpProxyServer (DefaultHttpProxyServer.java:436).doStop() - Shutting down proxy server immediately (non-graceful)
+61574  2017-11-17 12:25:37,440 INFO  [LittleProxy-JVM-shutdown-hook] impl.DefaultHttpProxyServer (DefaultHttpProxyServer.java:469).closeAllChannels() - Closing all channels (non-graceful)
+61584  2017-11-17 12:25:37,450 INFO  [LittleProxy-JVM-shutdown-hook] impl.ServerGroup (ServerGroup.java:212).shutdown() - Shutting down server group event loops (non-graceful)
+61601  2017-11-17 12:25:37,467 INFO  [LittleProxy-JVM-shutdown-hook] impl.DefaultHttpProxyServer (DefaultHttpProxyServer.java:450).doStop() - Done shutting down proxy server
+Java process exited abnormally
