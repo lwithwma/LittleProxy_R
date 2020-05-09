@@ -50,8 +50,12 @@ import de.uniba.wiai.lspi.chord.service.Chord;
 //import de.uniba.wiai.lspi.chord.service.ServiceException;
 //import de.uniba.wiai.lspi.util.logging.Logger;
 import java.io.IOException;
-import java.net.InetSocketAddress;
+//import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.net.DatagramPacket; 
+import java.net.DatagramSocket; 
+import java.net.InetAddress; 
+//import java.util.Scanner; 
 
 /**
  * Convenience base class for implementations of {@link HttpFilters}.
@@ -61,7 +65,6 @@ public class HttpFiltersAdapter implements HttpFilters {
 	 * A default, stateless, no-op {@link HttpFilters} instance.
 	 */
 	public static final HttpFiltersAdapter NOOP_FILTER = new HttpFiltersAdapter(null);
-
 	protected final HttpRequest originalRequest;
 	protected final ChannelHandlerContext ctx;
 	private int i;
@@ -294,7 +297,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 		String requestUri = originalRequest.getUri();
 		 System.out.println("Inside getRelatedHostAndPort:" + serverHostAndPort);
 
-		if (requestUri.matches(".*[./]m4s.*$")){ //if segment
+	   if (requestUri.matches(".*[./]m4s.*$")){ //if segment
 		String[] array1 = requestUri.split("/");
 
 		if (array1.length > 2) {
@@ -310,35 +313,45 @@ public class HttpFiltersAdapter implements HttpFilters {
 				//Get all representation segment names
 				HashSet<String> segNames = getAllRepSegNames(newArray[newArray.length - 1]);  //get all representation segment names of given segment argument
 				System.out.println("end of getAllRepSegNames \n");
+				//for(String s:segNames)
 				HashMap<String,Set<String>> hostToRep = new HashMap<String,Set<String>>(); // host to representation or segment
 				
 				String data = mpdName + newArray[newArray.length - 1];
 				HashMap<String,String> segToSize = new HashMap<String,String>();    //An ordered map in decreasing order of segment size
 				HashMap<Integer, String> sizeToSeg = new HashMap<Integer, String>();
+				boolean ifSegIsPresent=true; 
 
 				//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 				//creating hostToRep, segToSize and sizeToSeg for each segment present in segNames
 				for (String segName: segNames) {
     					//String rep = entry.getKey();
     					//String segName = entry.getValue();
+					System.out.println("segName: "+segName+"  mpdName: "+mpdName);
 					Key myKey = new Key(mpdName + segName);  //key for each segment 
 
 					//<---------------------------------Search set of host(IPs) containing the required segment--------------------------------------------->
 					try{
-						Set<Serializable> values = MyUtils.chord.retrieve(myKey); //calling retrieve function from ChordImpl(??? values of all node that should be store in given id(node))
-					
-					
-					//add segment to each host present in set values
-					for(Serializable s: values) {
-						String host = s.toString();
-						if(hostToRep.get(host) == null){
-							hostToRep.put(host, new HashSet<String>());
+							Set<Serializable> values = MyUtils.chord.retrieve(myKey); //calling retrieve function from ChordImpl(??? values of all node that should be store in given id(node))
+
+
+						//add segment to each host present in set values
+							if(!values.isEmpty()){
+								for(Serializable s: values) {
+								String host = s.toString();
+								if(hostToRep.get(host) == null){
+									hostToRep.put(host, new HashSet<String>());
+								}
+								hostToRep.get(host).add(segName);
+							    }
+
+							}else{
+									System.out.println("Segment :"+ segName + " is not present in chord");
+									ifSegIsPresent=false;
+					             }
+							
+						} catch(Exception e){
+							System.out.println("Error while receiveing key data \n");
 						}
-						hostToRep.get(host).add(segName);
-					}
-					} catch(Exception e){
-						System.out.println("Error while receiveing key data \n");
-					}
 
 					//segment to size
 					Key sizeKey = new Key(mpdName+segName+"size");
@@ -359,16 +372,16 @@ public class HttpFiltersAdapter implements HttpFilters {
 						}
 					}
 					else{
-						System.out.println("Size:" + segName +"  empty");
+						System.out.println("Size of :" + segName +" is not present in chord");
 					}
 					} catch(Exception e){
 						System.out.println("Error while receiveing size of key data \n");
 					}
 							
-				}
+				}//end of for loop
 
 
-
+               if(ifSegIsPresent){   //if required segment is  present in chord
 				//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 				Set<String> set  = hostToRep.keySet(); //set of all host containing segments
 				HashSet<String> values = (set instanceof HashSet) ? (HashSet)set : new HashSet<Serializable>(set);
@@ -438,6 +451,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 								for(int i = 1; i<array1.length; i++){
 									str = str+"/"+array1[i];//<<=================/???
 								}
+								System.out.println("str1: "+ str +"\n");
 								if(exists(str)) // true if str is an url to any peer
 									return relatedHostAndPort;
 								else relatedHostAndPort = null;
@@ -449,21 +463,24 @@ public class HttpFiltersAdapter implements HttpFilters {
 
 				//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 				//if only if condition fails in an algo it get executed
-				ArrayList<String> hostReps = new ArrayList(negativeMetricToHostRep.values()); //host/segment list eg.10.0.02:8080/seg1
+				ArrayList<String> hostReps = new ArrayList(negativeMetricToHostRep.values()); //host/segment list eg.10.0.0.2/segment_name
 
 				if(hostReps != null){
 					for(String hostRep : hostReps){ //for each host/seg
 						String[] array2 = hostRep.split("/");
 
-						relatedHostAndPort = array2[0];
-						String rep = array2[1];
-
-						array1[2] = relatedHostAndPort;
-						String str = array1[0];
+						relatedHostAndPort = array2[0]+":8080"; //10.0.0.2:8080
+						System.out.println("relatedHostAndPort: "+ relatedHostAndPort +"\n");
+						String rep = array2[1];  //segment_name
+						System.out.println("rep: "+ rep +"\n");
+						array1[2] = relatedHostAndPort; 
+						String str = array1[0]; //http:
+						System.out.println("str: "+ str +"\n");
 						array1[array1.length - 1] = rep;
 						for(int i = 1; i<array1.length; i++){
 							str = str+"/"+array1[i];
 						}
+						System.out.println("str2: "+ str +"\n"); //str2: http://10.0.0.2:8080/das/segment_name
 						if(exists(str)){
 							originalRequest.setUri(str);
 							return relatedHostAndPort;
@@ -472,7 +489,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 					}					
 				}
 
-
+              }
 			}
 
 			if (relatedHostAndPort == null)
@@ -482,7 +499,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 			return relatedHostAndPort;
 		}
 		System.out.println("RElated Hsst");
-		}
+	  }
 		return serverHostAndPort;
 	}
 
@@ -502,11 +519,17 @@ public class HttpFiltersAdapter implements HttpFilters {
 		String referer = originalRequest.headers().get("REFERER");
 		String mpd = MyUtils.reftoMpd.get(referer);
 		String str = MyUtils.mpdDir + "/" + mpd; //MyUtils.reftoMpd.get(referer); //location of mpd file
-		Vector<Vector<String>> segUrls = MyUtils.mpdtosegurls.get(mpd);
-
+		Vector<Vector<String>> segUrls= MyUtils.mpdtosegurls.get(mpd);
+		/*System.out.println("Data inside segUrls:");
+		for(int i=0;i<segUrls.size();i++){
+			 for(int j=0;j<segUrls[i].size();j++){
+				System.out.println(segUrls[i][j]+ "\n");
+			 }
+		}
+*/
 		//if mpd have no segment associted
 		if(segUrls == null){
-			xmlprocess(mpd);  // calling of xmlprocess function
+			xmlParser.xmlprocess(mpd);  // calling of xmlprocess function
 			segUrls = MyUtils.mpdtosegurls.get(mpd);
 		}
 		//find index of given segment from segurls
@@ -521,8 +544,9 @@ public class HttpFiltersAdapter implements HttpFilters {
 		HashSet<String> segs = new HashSet<String>();
 
 		for(Vector<String> ve : segUrls){
-			System.out.println("Size of 1d vector is " + ve.size());
-			segs.add(ve.get(index));
+			System.out.println("Size of 1D vector is " + ve.size());
+			if(ve.size()>0)//add new line
+			 segs.add(ve.get(index));
 		}
 		return segs; //seg2,seg2,seg2 from representation 1080p,720p and 480p
 	}
@@ -530,7 +554,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 
 
 
-	private void xmlprocess(String mpd){
+	/*private void xmlprocess(String mpd){
 				             		System.out.println("Inside xmlprocess");
 
 
@@ -543,13 +567,14 @@ public class HttpFiltersAdapter implements HttpFilters {
 			File inputFile = new File(MyUtils.mpdDir + "/" + mpd); //create mpd file
 			SAXReader reader = new SAXReader();
 			Document document = reader.read(inputFile); //read mpd file
-			HashMap map = new HashMap();
+			HashMap<String,String> map = new HashMap<>();
 			Vector<Vector<String>> vec = new Vector<Vector<String>>();
 			map.put("edx", "urn:mpeg:dash:schema:mpd:2011"); //xmlns=urn:mpeg:dash:schema:mpd:2011   ???
 			System.out.println("one \n");
-			System.out.println("MPD File Size in bytes "+inputFile.length() + "\n"); 
+			System.out.println("MPD File Size in bytes :"+inputFile.length() + "\n"); 
 
 			XPath xpath = document.createXPath("/edx:MPD/edx:Period/edx:AdaptationSet/edx:Representation");  //get all representation
+			//document.createXPath("/edx:MPD/edx:Period/edx:AdaptationSet/edx:Representation");
 			System.out.println("two \n");
 			xpath.setNamespaceURIs(map);
 
@@ -586,7 +611,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 			System.out.println("ERROR Inside xmlprocess ");
 		}
 		
-	}
+	}*/
 
 	private String getRepoPath() {
 		String requestUri = originalRequest.getUri();
@@ -615,6 +640,7 @@ public class HttpFiltersAdapter implements HttpFilters {
              		System.out.println("Inside retrieveBandwidths");
 
             //Datagram socket is a type of network socket which provides connection-less point for sending and receiving packets(UDP)
+             		//Step 1:Create the socket object for carrying the data. 
 			    DatagramSocket serverSocket = new DatagramSocket(); //controller socket
      			ByteArrayOutputStream byteStream = new ByteArrayOutputStream(5000);
       			ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(byteStream));
@@ -622,24 +648,31 @@ public class HttpFiltersAdapter implements HttpFilters {
       			os.writeObject(values);
       			os.flush();
       			//retrieves byte array
-      			byte[] sendBuf = byteStream.toByteArray();
-			    byte[] receiveData = new byte[1024];
+      			byte sendBuf[] = byteStream.toByteArray(); //data to send
+      			//String testSend="hello";
+      			//byte sendBuf[]=testSend.getBytes();
+			    byte receiveData[] = new byte[1024];
       			//int byteCount = packet.getLength();
-			//String ip="10.0.0.253";
-      			String ip="127.0.0.10"; //ip of controller
+			    String ip="10.0.0.4";
+      			//String ip="127.0.0.10"; //ip of controller
     	  		InetAddress address = InetAddress.getByName(ip);
           		int port = 7777;
 		    //creating datagram packet cointaining all set of host containing segment
+          		//Step 2 : Create the datagramPacket for sending the data. 
 			DatagramPacket sendPacket = new DatagramPacket(sendBuf, sendBuf.length, address, port);
 			   //serverSocket.connect(address,port);
 
-			    System.out.println("Sending Packet to controller");
+			    System.out.println("Sending Packet to controller:-->"+sendPacket +"<--");
+			    // Step 3 : invoke the send call to actually send the data.
           		serverSocket.send(sendPacket);
 			    System.out.println("Packet Send");
 
-			DatagramPacket receivePacket = new DatagramPacket(receiveData, 1024);
+			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+			//DatagramSocket recServerSocket = new DatagramSocket(6653);
+			// Step 4 : revieve the data in byte buffer. 
 			serverSocket.receive(receivePacket);
 			byte[] dataBytes = receivePacket.getData();
+			 System.out.println("Packet Received from controller:-->"+receivePacket+"<--");
 			
 			HashMap<String, String> o = null;
 			ByteArrayInputStream byteStream1 = new ByteArrayInputStream(dataBytes);
@@ -681,6 +714,8 @@ public class HttpFiltersAdapter implements HttpFilters {
        			return false;
     		}
   	}
+
+
 	private boolean isNumber(String s){
     		try{
     			System.out.println("Inside isNumber" );
