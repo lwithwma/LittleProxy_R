@@ -462,7 +462,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 
 
 				//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-				//if only if condition fails in an algo it get executed
+				//if only if condition above fails in an algo it get executed
 				ArrayList<String> hostReps = new ArrayList(negativeMetricToHostRep.values()); //host/segment list eg.10.0.0.2/segment_name
 
 				if(hostReps != null){
@@ -653,7 +653,7 @@ public class HttpFiltersAdapter implements HttpFilters {
       			//byte sendBuf[]=testSend.getBytes();
 			    byte receiveData[] = new byte[1024];
       			//int byteCount = packet.getLength();
-			    String ip="10.0.0.4";
+			    String ip="10.0.0.10";
       			//String ip="127.0.0.10"; //ip of controller
     	  		InetAddress address = InetAddress.getByName(ip);
           		int port = 7777;
