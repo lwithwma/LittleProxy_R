@@ -80,22 +80,23 @@ public class xmlParser {
 
 			 vec.add(new Vector<String>());
 
-			 if (node.getNodeType() == Node.ELEMENT_NODE)
-			 {
-			    //Print each employee's detail
-			 	Element eElement = (Element) node;
+				 if (node.getNodeType() == Node.ELEMENT_NODE)
+				 {
+				    //Print each employee's detail
+				 	Element eElement = (Element) node;
 
-				vec.get(index).add(eElement.getAttribute("media"));
-				
-			 	//System.out.println("Representation id : "    + eElement.getAttribute("id"));
-			 	System.out.println("SegmentList : "  + eElement.getAttribute("media"));//.item(0).getTextContent());
-			 	// System.out.println("Last Name : "   + eElement.getElementsByTagName("lastName").item(0).getTextContent());
-			 	// System.out.println("Location : "    + eElement.getElementsByTagName("location").item(0).getTextContent());
+					vec.get(index).add(eElement.getAttribute("media"));
+					
+				 	//System.out.println("Representation id : "    + eElement.getAttribute("id"));
+				 	System.out.println("SegmentList : "  + eElement.getAttribute("media"));//.item(0).getTextContent());
+				 	// System.out.println("Last Name : "   + eElement.getElementsByTagName("lastName").item(0).getTextContent());
+				 	// System.out.println("Location : "    + eElement.getElementsByTagName("location").item(0).getTextContent());
 
-			 }
+				 }
 			 
 			}
-              index++;//unused for now
+              //index++;//unused for now
+
 			MyUtils.mpdtosegurls.put(mpd,vec);
 
        }catch (Exception e) {

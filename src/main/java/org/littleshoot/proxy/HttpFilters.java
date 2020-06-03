@@ -210,6 +210,7 @@ public interface HttpFilters {
     void proxyToServerConnectionSucceeded(ChannelHandlerContext serverCtx);
     
     String getRelatedHostAndPort(String serverHostAndPort);
+    String getRelatedHostAndPortForBola(String serverHostAndPort);
 
     HttpRequest sendingFinalRequest(HttpRequest httpRequest);
 

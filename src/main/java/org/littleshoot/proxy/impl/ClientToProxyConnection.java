@@ -286,9 +286,27 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> { //ex
             }
         }
 	
-	//TODO: Host and port identified, Retrive host list from controller.
-	
-        serverHostAndPort = currentFilters.getRelatedHostAndPort(serverHostAndPort);
+        
+        String getUrl=httpRequest.getUri();
+        System.out.println("segment Name:"+getUrl + " \n");
+        String array[];
+        String abrAlgo;
+        if(getUrl.contains("?")){
+            System.out.println("cointain ? inside string");
+           array = getUrl.split("\\?",2);
+           abrAlgo=array[1];
+        }else{
+            abrAlgo="others";
+        }
+        System.out.println("ABR algo Name:"+abrAlgo + " \n");
+        if(abrAlgo.equals("bola")){
+            System.out.println("About to enter into bola host and port");
+             serverHostAndPort=currentFilters.getRelatedHostAndPortForBola(serverHostAndPort);
+        }else{
+        	//TODO: Host and port identified, Retrive host list from controller.
+            serverHostAndPort = currentFilters.getRelatedHostAndPort(serverHostAndPort);
+
+        }
         //String servet=currentFilters.getRelatedHostAndPort(serverHostAndPort);
       System.out.println("serverHostAndPort after getRelatedHostAndPort:" + serverHostAndPort+ " \n"); 
 
@@ -812,6 +830,7 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> { //ex
                 proxyServer.getMaxChunkSize()));
 
         // Enable aggregation for filtering if necessary
+        boolean isBufferPresent=false;
         int numberOfBytesToBuffer = proxyServer.getFiltersSource()
                 .getMaximumRequestBufferSizeInBytes();
         if (numberOfBytesToBuffer > 0) {

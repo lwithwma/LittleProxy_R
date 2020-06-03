@@ -77,6 +77,10 @@ public class HttpFiltersAdapter implements HttpFilters {
 	// private String mpd;
 
 	public HttpFiltersAdapter(HttpRequest originalRequest, ChannelHandlerContext ctx) {
+		/*String getUrl=originalRequest.getUri();
+        String[] array = getUrl.split("\\?",2);
+        String segmentUrl=array[0];
+        this.originalRequest.setUri(segmentUrl);*/
 		this.originalRequest = originalRequest;
 		this.ctx = ctx;
 		System.out.println("inside HttpFiltersAdapter.java" +"\n"); //my comment
@@ -101,6 +105,13 @@ public class HttpFiltersAdapter implements HttpFilters {
 				System.out.println(str);
 			String[] newArray = Arrays.copyOfRange(array1, 3, array1.length);
 		}*/
+
+		String getUrl=originalRequest.getUri();
+		if(getUrl.contains("?")){
+          String[] array = getUrl.split("\\?",2);
+          String segmentUrl=array[0];
+          originalRequest.setUri(segmentUrl);
+		}
         System.out.println("\n");
 		return null;
 	}
@@ -283,6 +294,71 @@ public class HttpFiltersAdapter implements HttpFilters {
 		System.out.println("Inside proxyToServerResolutionStarted");
 
 		return null;
+	}
+
+   //Modules 1)
+	@Override
+	public String getRelatedHostAndPortForBola(String serverHostAndPort){
+		String requestUri = originalRequest.getUri();
+		System.out.println("Inside getRelatedHostAndPortForBola:" + serverHostAndPort);
+
+		if (requestUri.matches(".*[./]m4s.*$")){ //if segment
+		   String[] array1 = requestUri.split("/");
+
+		   if (array1.length > 2) {
+				String[] newArray = Arrays.copyOfRange(array1, 3, array1.length);
+				System.out.println("REFERER: " + originalRequest.headers().get("REFERER"));
+				String referer = originalRequest.headers().get("REFERER");
+				String mpdName = MyUtils.reftoMpd.get(referer);
+				String relatedHostAndPort = null;
+
+				if (newArray != null && newArray.length != 0) {
+					String segName=newArray[newArray.length - 1];
+					
+					//-------Search set of host(IPs) containing the required segment--------------------------------------------->
+					try{
+						    Key myKey = new Key(mpdName + segName);  //key for  segment 
+							Set<Serializable> values = MyUtils.chord.retrieve(myKey); //calling retrieve function from ChordImpl(??? values of all node that should be store in given id(node))
+						    //if peer is not empty
+							if(!values.isEmpty()){
+								for(Serializable s: values) {  //change it
+								  String host = s.toString();
+								  relatedHostAndPort = host+":8080";
+							     }
+								array1[2] = relatedHostAndPort;
+								String str = array1[0];
+								array1[array1.length - 1] = segName;
+								for(int i = 1; i<array1.length; i++){
+									str = str+"/"+array1[i];//<<=================/???
+								}
+								System.out.println("str in bola: "+ str +"\n");
+								if(exists(str)){
+								  // true if str is an url to any peer
+								    originalRequest.setUri(str);
+									return relatedHostAndPort;
+								} 
+								else relatedHostAndPort = null;
+								
+
+							 }else{
+									System.out.println("Segment :"+ segName + " is not present in chord");
+									//ifSegIsPresent=false;
+					             }
+							
+						} catch(Exception e){
+							System.out.println("Error while receiveing key data \n");
+						}
+
+				}
+
+
+
+
+		   }
+
+
+		}
+       return serverHostAndPort;
 	}
 
 
@@ -653,7 +729,7 @@ public class HttpFiltersAdapter implements HttpFilters {
       			//byte sendBuf[]=testSend.getBytes();
 			    byte receiveData[] = new byte[1024];
       			//int byteCount = packet.getLength();
-			    String ip="10.0.0.10";
+			    String ip="10.0.0.1";
       			//String ip="127.0.0.10"; //ip of controller
     	  		InetAddress address = InetAddress.getByName(ip);
           		int port = 7777;

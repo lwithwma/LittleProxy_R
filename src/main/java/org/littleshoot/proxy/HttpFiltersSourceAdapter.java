@@ -25,7 +25,7 @@ public class HttpFiltersSourceAdapter implements HttpFiltersSource {
 
     @Override
     public int getMaximumResponseBufferSizeInBytes() {
-        return 10*1024*1024;
+        return 10*1024*1024; //10MB
     }
 
 }
