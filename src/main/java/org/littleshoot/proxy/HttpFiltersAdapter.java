@@ -318,13 +318,29 @@ public class HttpFiltersAdapter implements HttpFilters {
 					//-------Search set of host(IPs) containing the required segment--------------------------------------------->
 					try{
 						    Key myKey = new Key(mpdName + segName);  //key for  segment 
-							Set<Serializable> values = MyUtils.chord.retrieve(myKey); //calling retrieve function from ChordImpl(??? values of all node that should be store in given id(node))
+							Set<Serializable> peerSet = MyUtils.chord.retrieve(myKey); //calling retrieve function from ChordImpl(??? values of all node that should be store in given id(node))
+							HashSet<String> pset = (peerSet instanceof HashSet) ? (HashSet)peerSet : new HashSet<Serializable>(peerSet);
 						    //if peer is not empty
-							if(!values.isEmpty()){
-								for(Serializable s: values) {  //change it
-								  String host = s.toString();
-								  relatedHostAndPort = host+":8080";
+							if(!peerSet.isEmpty()){
+								//--------------------------A data structure to store end to end available bandwidth between the requesting peer and the available peers;---------------------->
+								HashMap<String, String> hostToAvailBandwidth = retrieveBandwidths(pset); //calling retrieveBandwidths function
+                                //selecting the largest bandwidth
+                                String host=null;
+                                BigInteger initBw=new BigInteger("0");
+								for(Serializable peer: peerSet) { 
+								  String hostToSelect = peer.toString();
+								  String hostBandwidth=hostToAvailBandwidth.get(hostToSelect);
+								  BigInteger hostBandwidthInt=new BigInteger(hostBandwidth);
+								  int comparevalue = hostBandwidthInt.compareTo(initBw); 
+								  if((comparevalue ==1)|| (comparevalue==0)){
+								  	host=hostToSelect;
+								  	initBw=hostBandwidthInt;
+								  }
+
 							     }
+
+
+								relatedHostAndPort = host+":8080";
 								array1[2] = relatedHostAndPort;
 								String str = array1[0];
 								array1[array1.length - 1] = segName;
