@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import org.dom4j.Document;
+/*import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -23,7 +23,7 @@ import org.dom4j.DocumentHelper;
 
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.dom4j.XPath;
+import org.dom4j.XPath;*/
 import java.nio.charset.Charset;
 
 import de.uniba.wiai.lspi.util.console.ConsoleException;
@@ -56,6 +56,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket; 
 import java.net.InetAddress; 
 //import java.util.Scanner; 
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
 
 /**
  * Convenience base class for implementations of {@link HttpFilters}.
@@ -606,7 +608,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 
    //return all representation segment names
 	private HashSet<String> getAllRepSegNames(String requestedFile) { //requestedFile is segment name
-				             		System.out.println("Inside getAllRepSegNames");
+				             		System.out.println("Inside getAllRepSegNames and RequestedSegment:"+ requestedFile);
 
 		String referer = originalRequest.headers().get("REFERER");
 		String mpd = MyUtils.reftoMpd.get(referer);
@@ -621,12 +623,15 @@ public class HttpFiltersAdapter implements HttpFilters {
 */
 		//if mpd have no segment associted
 		if(segUrls == null){
-			xmlParser.xmlprocess(mpd);  // calling of xmlprocess function
+			xmlprocesss(mpd);  // calling of xmlprocess function
 			segUrls = MyUtils.mpdtosegurls.get(mpd);
 		}
 		//find index of given segment from segurls
 		int index = -1;
-		for(Vector<String> ve : segUrls){    
+		for(Vector<String> ve : segUrls){  
+			System.out.println("The Vector is: " + ve); 
+		    int indx=ve.indexOf(requestedFile);
+		    System.out.println("Index of RequestedSegment:"+ indx);
 			if(ve.indexOf(requestedFile) != -1){
 				index = ve.indexOf(requestedFile);
 				break;
@@ -643,7 +648,64 @@ public class HttpFiltersAdapter implements HttpFilters {
 		return segs; //seg2,seg2,seg2 from representation 1080p,720p and 480p
 	}
 
+private void xmlprocesss(String mpd){
+		System.out.println("Inside xmlprocesss");
+		if (mpd == null){
+		    System.out.println("Inside xmlprocess: No MPD file");
 
+			return ;
+		}
+
+		try{
+			 File inputFile = new File(MyUtils.mpdDir + "/" + mpd); //create mpd file
+			  //Create a DocumentBuilder
+			 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	        
+	         Document doc = dBuilder.parse(inputFile);
+	         doc.getDocumentElement().normalize();
+	         System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+	         NodeList nList = doc.getElementsByTagName("Representation");
+	         System.out.println("----------------------------");
+
+	         int index = 0;
+             Vector<Vector<String>> vec = new Vector<Vector<String>>();
+
+	        for (int temp = 0; temp < nList.getLength(); temp++) {
+	            Node nNode = nList.item(temp);     
+	       
+	            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+		               Element eElement = (Element) nNode;
+						vec.add(new Vector<String>());
+						vec.get(index).add(eElement.getAttribute("bandwidth"));
+						
+						
+						
+						NodeList mList = eElement.getElementsByTagName("SegmentURL");
+						
+						for (int temp1 = 0; temp1 < mList.getLength(); temp1++) { //for each segmentURL
+							Node mNode = mList.item(temp1);  
+							if (mNode.getNodeType() == Node.ELEMENT_NODE)
+				              {
+								Element eeElement = (Element) mNode;
+								vec.get(index).add(eeElement.getAttribute("media"));
+								System.out.println("SegmentList : "  + eeElement.getAttribute("media"));
+							}
+						}
+						index++;
+                }
+            }
+              
+
+			MyUtils.mpdtosegurls.put(mpd,vec);//<========================================
+
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			//System.out.println("ERROR Inside xmlprocess ");
+		}
+	}
 
 
 	/*private void xmlprocess(String mpd){
