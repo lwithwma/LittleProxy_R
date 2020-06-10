@@ -665,37 +665,44 @@ private void xmlprocesss(String mpd){
 	         Document doc = dBuilder.parse(inputFile);
 	         doc.getDocumentElement().normalize();
 	         System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-	         NodeList nList = doc.getElementsByTagName("Representation");
-	         System.out.println("----------------------------");
-
+	         NodeList aList = doc.getElementsByTagName("AdaptationSet");
 	         int index = 0;
-             Vector<Vector<String>> vec = new Vector<Vector<String>>();
+		     Vector<Vector<String>> vec = new Vector<Vector<String>>();
 
-	        for (int temp = 0; temp < nList.getLength(); temp++) {
-	            Node nNode = nList.item(temp);     
-	       
-	            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+	         for(int adap=0; adap<aList.getLength();adap++){
+                   Node aNode = aList.item(adap);
+                   if (aNode.getNodeType() == Node.ELEMENT_NODE) {
+				          Element aElement = (Element) aNode;
 
-		               Element eElement = (Element) nNode;
-						vec.add(new Vector<String>());
-						vec.get(index).add(eElement.getAttribute("bandwidth"));
-						
-						
-						
-						NodeList mList = eElement.getElementsByTagName("SegmentURL");
-						
-						for (int temp1 = 0; temp1 < mList.getLength(); temp1++) { //for each segmentURL
-							Node mNode = mList.item(temp1);  
-							if (mNode.getNodeType() == Node.ELEMENT_NODE)
-				              {
-								Element eeElement = (Element) mNode;
-								vec.get(index).add(eeElement.getAttribute("media"));
-								System.out.println("SegmentList : "  + eeElement.getAttribute("media"));
-							}
-						}
-						index++;
-                }
-            }
+					         NodeList nList = aElement.getElementsByTagName("Representation");
+					         
+					        for (int temp = 0; temp < nList.getLength(); temp++) {
+					              Node nNode = nList.item(temp);     
+					       
+					            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+						               Element eElement = (Element) nNode;
+										vec.add(new Vector<String>());
+										vec.get(index).add(eElement.getAttribute("bandwidth"));
+										
+										
+										
+										NodeList mList = eElement.getElementsByTagName("SegmentURL");
+										
+										for (int temp1 = 0; temp1 < mList.getLength(); temp1++) { //for each segmentURL
+											Node mNode = mList.item(temp1);  
+											if (mNode.getNodeType() == Node.ELEMENT_NODE)
+								              {
+												Element eeElement = (Element) mNode;
+												vec.get(index).add(eeElement.getAttribute("media"));
+												System.out.println("SegmentList : "  + eeElement.getAttribute("media"));
+											}
+										}
+										index++;
+				                }
+				            }
+                    }
+	              }
               
 
 			MyUtils.mpdtosegurls.put(mpd,vec);//<========================================
