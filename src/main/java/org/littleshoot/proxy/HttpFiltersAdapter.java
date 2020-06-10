@@ -150,7 +150,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 				// String requestUri = originalRequest.getUri();
 
 				if (requestUri.matches(".*[./]mpd.*$") || requestUri.matches(".*[./]mp4.*$")
-						|| requestUri.matches(".*[./]m4s.*$") || requestUri.matches(".*[./]woff2.*$")) {
+						|| requestUri.matches(".*[./]m4v.*$")||requestUri.matches(".*[./]m4a.*$") || requestUri.matches(".*[./]woff2.*$")) {
 					ByteBuf buff = response.content();
 					//System.out.println("REQUEST recieved at server:" +i+" "+ requestUri);
 
@@ -163,7 +163,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 					System.out.println("Size of File: "+ fileSize);
 					String str;
 					//if (!requestUri.matches(".*[./]mpd.*$")) { //if not .mpd file 
-					if(requestUri.matches(".*[./]m4s.*$")){ //if segment
+					if(requestUri.matches(".*[./]m4v.*$") ||requestUri.matches(".*[./]m4a.*$")){ //if segment
 						str = getRepoPath(); //calling ........
 						System.out.println("RepoPath:"+str);
 						System.out.println("Initial Mappings are: " + MyUtils.reftoMpd); 
@@ -304,7 +304,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 		String requestUri = originalRequest.getUri();
 		System.out.println("Inside getRelatedHostAndPortForBola:" + serverHostAndPort);
 
-		if (requestUri.matches(".*[./]m4s.*$")){ //if segment
+		if (requestUri.matches(".*[./]m4v.*$") || requestUri.matches(".*[./]m4a.*$")){ //if segment
 		   String[] array1 = requestUri.split("/");
 
 		   if (array1.length > 2) {
@@ -391,7 +391,7 @@ public class HttpFiltersAdapter implements HttpFilters {
 		String requestUri = originalRequest.getUri();
 		 System.out.println("Inside getRelatedHostAndPort:" + serverHostAndPort);
 
-	   if (requestUri.matches(".*[./]m4s.*$")){ //if segment
+	   if (requestUri.matches(".*[./]m4v.*$") || requestUri.matches(".*[./]m4a.*$")){ //if segment
 		String[] array1 = requestUri.split("/");
 
 		if (array1.length > 2) {
